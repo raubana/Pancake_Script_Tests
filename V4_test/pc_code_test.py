@@ -43,6 +43,12 @@ while interpreter.running:
 
 		interpreter.process_current_line()
 
+		if len(interpreter.print_buffer) > 0:
+			if DEBUG_PROCESS:
+				print
+				print "OUTPUT:"
+			print string.join(interpreter.print_buffer, "\n")
+
 		if DEBUG_PROCESS:
 			print "IND:", interpreter.current_line_index
 			print "NXT:", interpreter.next_line_index

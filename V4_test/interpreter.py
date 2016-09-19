@@ -1,7 +1,6 @@
 import string
+from constants import *
 
-STACK_SIZE = 6
-MEMORY_SIZE = 8
 
 NUM_CHARS = "1234567890."
 
@@ -31,9 +30,10 @@ class Literal(object):
 
 
 def _print(interpreter, args):
-	print "OUTPUT:"
-	print args
-	print
+	L = []
+	for x in args:
+		L.insert(0, str(x))
+	interpreter.print_buffer.append(string.join(L, ", "))
 
 
 
@@ -48,12 +48,15 @@ class Interpreter(object):
 		self.stack = []
 		self.memory = {}
 
+		self.print_buffer = []
+
 		self.next_line_index = 0
 		self.current_line_index = None
 
 		self.running = True
 
 	def go_to_next_line(self):
+		self.print_buffer = []
 		if self.next_line_index is None or self.next_line_index >= len(self.script):
 			self.running = False
 			return
