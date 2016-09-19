@@ -1,0 +1,2 @@
+a = if(0){ "a" } else { "b" };
+print(a);

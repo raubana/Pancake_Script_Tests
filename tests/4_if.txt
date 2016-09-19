@@ -1,0 +1,15 @@
+if(0){
+    print("A");
+};
+
+if(1){
+    print("B");
+};
+
+if(""){# This is an empty string, so it evaluates as false.
+    print("C");
+};
+
+if("0"){ # This is a non-empty string, so it evaluates as true.
+    print("D");
+};

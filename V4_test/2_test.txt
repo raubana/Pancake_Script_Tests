@@ -1,0 +1,29 @@
+TRM a
+LIT 1
+ASN
+TRM a
+LIT 0
+LIT 2
+FNC lessthan
+{
+LIT "A"
+LIT 1
+FNC print
+GO2 29
+}
+TRM a
+LIT 0
+LIT 2
+FNC equalto
+{
+LIT "B"
+LIT 1
+FNC print
+GO2 29
+}
+LIT true
+{
+LIT "C"
+LIT 1
+FNC print
+}

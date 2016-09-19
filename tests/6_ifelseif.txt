@@ -1,0 +1,7 @@
+print("START");
+if(0){
+    print("A");
+}else if(""){
+    print("B");
+};
+print("END");

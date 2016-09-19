@@ -1,0 +1,9 @@
+print("START");
+if(0){
+    print("A");
+}else if(""){
+    print("B");
+}else{
+    print("C");
+};
+print("END");

@@ -1,0 +1,6 @@
+paint=3;
+while (paint > 0){
+    print(paint);
+    paint = paint - 1;
+};
+print ("blastoff pew pew pew");

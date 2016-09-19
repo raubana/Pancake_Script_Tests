@@ -1,0 +1,12 @@
+TRM a
+LIT 3
+LIT 1
+FNC negate
+LIT 3
+LIT 2
+FNC subtract
+ASN
+LIT "a = "
+TRM a
+LIT 2
+FNC print
