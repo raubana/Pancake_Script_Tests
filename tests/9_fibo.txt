@@ -7,7 +7,7 @@ while( i <= 25 ){
     temp = y;
     y = x + y;
     x = temp;
-    del(temp);
+    del("temp");
     print( i, x );
     i = i + 1;
 };

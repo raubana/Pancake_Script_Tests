@@ -36,10 +36,16 @@ def _print(interpreter, args):
 	interpreter.print_buffer.append(string.join(L, " "))
 
 
+def _del(interpreter, args):
+	for x in args:
+		if x.value in interpreter.memory:
+			del interpreter.memory[x.value]
+
 
 
 class Interpreter(object):
-	functions = {"print" : _print}
+	functions = {"print" : _print,
+				 "del": _del}
 
 	def __init__(self, script):
 		self.script = string.split(script,"\n")

@@ -2,4 +2,4 @@ a=12;
 b=10;
 print("Hello world!");
 print(a,b);
-del(a,b);
+del("a");

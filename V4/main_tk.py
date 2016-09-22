@@ -22,6 +22,8 @@ class Main(object):
 		self.needs_to_compile = True
 		self.running = False
 
+		self.speed = 0
+
 		self.script = ""
 
 		self.generated_script = None
@@ -41,7 +43,7 @@ class Main(object):
 		label_color = "#808080"
 
 		self.top.option_add("*Font", "Consolas")
-		self.top.option_add("*Font", "Consolas 18")
+		self.top.option_add("*Font", "Consolas 14")
 		self.top.option_add("*Background", element_color)
 		self.top.option_add("*Frame.Background", frame_color)
 		self.top.option_add("*Label.Background", frame_color)
@@ -75,13 +77,18 @@ class Main(object):
 		self.continue_checkbutton = Tkinter.Checkbutton(middle_frame, text="Continue", variable=self.continue_var)
 		self.continue_checkbutton.pack(side=Tkinter.LEFT)
 
-		self.fast_var = Tkinter.IntVar()
-		self.fast_checkbutton = Tkinter.Checkbutton(middle_frame, text="Fast", variable=self.fast_var)
-		self.fast_checkbutton.pack(side=Tkinter.LEFT)
+		self.slower_button = Tkinter.Button(middle_frame, text="<", command=self.slower)
+		self.slower_button.pack(side=Tkinter.LEFT)
+
+		self.speed_label = Tkinter.Label(middle_frame, text="0")
+		self.speed_label.pack(side=Tkinter.LEFT)
+
+		self.faster_button = Tkinter.Button(middle_frame, text=">", command=self.faster)
+		self.faster_button.pack(side=Tkinter.LEFT)
 
 		self.stop_button = Tkinter.Button(middle_frame, text="STOP", command=self.stop)
 		self.stop_button.config(state=Tkinter.DISABLED)
-		self.stop_button.pack(side=Tkinter.LEFT)
+		self.stop_button.pack(side=Tkinter.LEFT, padx = padding*3)
 
 		self.display_element = Tkinter.Text(bottom_frame)
 		self.display_element.config(state=Tkinter.DISABLED)
@@ -132,8 +139,6 @@ class Main(object):
 
 		self.script_scrollbar.config(command=self.script_element.yview)
 
-
-
 	def on_script_change(self, *args):
 		if not self.running:
 			new_script = self.get_script_text()
@@ -150,9 +155,9 @@ class Main(object):
 
 			tokenlist = pancake.compiler.tokenizer.tokenize(self.get_script_text(), True)
 			try:
-				pancake.compiler.op_finder.process(tokenlist, True)
 				pancake.compiler.blocker.process(tokenlist)
 				pancake.compiler.fnc_finder.process(tokenlist)
+				pancake.compiler.op_finder.process(tokenlist, True)
 			except:
 				pass
 
@@ -247,6 +252,17 @@ class Main(object):
 				self.script_element.config(state=Tkinter.NORMAL)
 				self.stop_button.config(state=Tkinter.DISABLED)
 				self.run_button.config(state=Tkinter.NORMAL)
+
+	def faster(self):
+		self.speed = min(self.speed+1,16)
+		self.update_speed_label()
+
+	def slower(self):
+		self.speed = max(self.speed-1,0)
+		self.update_speed_label()
+
+	def update_speed_label(self):
+		self.speed_label.config(text = str(self.speed))
 
 	def stop(self):
 		if self.running:
@@ -377,9 +393,11 @@ class Main(object):
 			self.display_element.delete(1.0, Tkinter.END)
 			self.display_element.config(state=Tkinter.DISABLED)
 
-		if not self.interpreter.running:
-			self.stop()
-		else:
+		iterations = 2.0 ** (self.speed - 10)
+		delay = max(int(1.0 / iterations),1)
+		iterations = max(int(iterations),1)
+
+		while self.interpreter is not None and self.interpreter.running and iterations > 0:
 			try:
 				self.interpreter.go_to_next_line()
 				self.analyze()
@@ -387,12 +405,7 @@ class Main(object):
 					self.interpreter.process_current_line()
 					self.analyze()
 
-					if bool(self.continue_var.get()):
-						self.run_button.config(state=Tkinter.DISABLED)
-						delay = 500
-						if bool(self.fast_var.get()):
-							delay = 1
-						self.top.after(delay, self._continue)
+					iterations -= 1
 				else:
 					self.stop()
 			except Exception as e:
@@ -402,6 +415,13 @@ class Main(object):
 				self.display_element.config(state=Tkinter.DISABLED)
 
 				self.stop()
+
+		if self.interpreter is not None and self.interpreter.running:
+			if bool(self.continue_var.get()):
+				self.run_button.config(state=Tkinter.DISABLED)
+				self.top.after(delay, self._continue)
+		else:
+			self.stop()
 
 	def _continue(self):
 		if bool(self.continue_var.get()) and self.running:
