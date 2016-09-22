@@ -40,8 +40,8 @@ class Main(object):
 		frame_color = "#4d4d4d"
 		label_color = "#808080"
 
-		self.top.option_add("*Font", "Tahoma")
-		self.top.option_add("*Font", "Tahoma 16")
+		self.top.option_add("*Font", "Consolas")
+		self.top.option_add("*Font", "Consolas 18")
 		self.top.option_add("*Background", element_color)
 		self.top.option_add("*Frame.Background", frame_color)
 		self.top.option_add("*Label.Background", frame_color)
@@ -55,14 +55,14 @@ class Main(object):
 		self.main = Tkinter.Frame(self.top)
 		self.main.pack(expand=True, fill=Tkinter.BOTH)
 
-		bottom_frame = Tkinter.Frame(self.main)
-		bottom_frame.pack(expand=True, fill=Tkinter.BOTH)
+		top_frame = Tkinter.Frame(self.main)
+		top_frame.pack(expand=False, fill=Tkinter.BOTH)
 
 		middle_frame = Tkinter.Frame(self.main)
 		middle_frame.pack(expand=True, fill=Tkinter.BOTH, padx = padding)
 
-		top_frame = Tkinter.Frame(self.main)
-		top_frame.pack(expand=False, fill=Tkinter.BOTH, padx = padding, pady = padding)
+		bottom_frame = Tkinter.Frame(self.main)
+		bottom_frame.pack(expand=True, fill=Tkinter.BOTH, padx = padding, pady = padding)
 
 		self.compile_button = Tkinter.Button(middle_frame, text="COMPILE", command=self.compile)
 		self.compile_button.pack(side=Tkinter.LEFT)
@@ -83,42 +83,41 @@ class Main(object):
 		self.stop_button.config(state=Tkinter.DISABLED)
 		self.stop_button.pack(side=Tkinter.LEFT)
 
-		self.display_element = Tkinter.Text(top_frame)
+		self.display_element = Tkinter.Text(bottom_frame)
 		self.display_element.config(state=Tkinter.DISABLED)
 		self.display_element.pack(expand=True, fill=Tkinter.BOTH)
 
-		left_frame = Tkinter.Frame(bottom_frame)
-		left_frame.config()
-		left_frame.pack(fill=Tkinter.BOTH)
+		left_frame = Tkinter.Frame(top_frame)
+		left_frame.pack(side=Tkinter.LEFT, fill=Tkinter.Y, padx = padding, pady = padding)
 
-		middle_frame = Tkinter.Frame(bottom_frame)
-		middle_frame.pack(side=Tkinter.LEFT, fill=Tkinter.Y, padx = padding, pady = padding)
+		center_frame = Tkinter.Frame(top_frame)
+		center_frame.pack(side=Tkinter.LEFT, fill=Tkinter.Y, pady = padding)
 
-		right_frame = Tkinter.Frame(bottom_frame)
+		right_frame = Tkinter.Frame(top_frame)
 		right_frame.pack(side=Tkinter.LEFT, expand=True, fill=Tkinter.BOTH, padx = padding, pady = padding)
 
-		w = Tkinter.Label(middle_frame, text="COMPILED TOKENS:")
+		w = Tkinter.Label(center_frame, text="COMPILED TOKENS:")
 		w.pack()
 
-		scrollbar = Tkinter.Scrollbar(middle_frame)
+		scrollbar = Tkinter.Scrollbar(center_frame)
 		scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx = padding)
 
-		self.tokens_frame = Tkinter.Listbox(middle_frame, selectmode=Tkinter.SINGLE, yscrollcommand=scrollbar.set)
+		self.tokens_frame = Tkinter.Listbox(center_frame, width=25, selectmode=Tkinter.SINGLE, yscrollcommand=scrollbar.set)
 		self.tokens_frame.pack(expand=True, fill=Tkinter.BOTH)
 
 		scrollbar.config(command=self.tokens_frame.yview)
 
-		w = Tkinter.Label(middle_frame, text="THE STACK:")
+		w = Tkinter.Label(left_frame, text="THE STACK:")
 		w.pack()
 
-		self.stack_element = Tkinter.Text(middle_frame, width=50, height=STACK_SIZE)
+		self.stack_element = Tkinter.Text(left_frame, width=20, height=STACK_SIZE)
 		self.stack_element.config(state=Tkinter.DISABLED)
 		self.stack_element.pack()
 
-		w = Tkinter.Label(middle_frame, text="MEMORY:")
+		w = Tkinter.Label(left_frame, text="MEMORY:")
 		w.pack()
 
-		self.memory_element = Tkinter.Text(middle_frame, width=50, height=MEMORY_SIZE)
+		self.memory_element = Tkinter.Text(left_frame, width=20, height=MEMORY_SIZE)
 		self.memory_element.config(state=Tkinter.DISABLED)
 		self.memory_element.pack()
 
@@ -205,7 +204,7 @@ class Main(object):
 									"{line}.{ch}".format(line=line_number, ch=char_number + length))
 
 	def get_script_text(self):
-		data = str(self.script_element.get("1.0", "1000000000.0"))
+		data = str(self.script_element.get("1.0", Tkinter.END))
 		data = data.strip()
 		return data
 
@@ -257,7 +256,7 @@ class Main(object):
 			except Exception as e:
 				if not str(e).startswith("ERROR:"):
 					traceback.print_exc()
-					self.display_element.insert(Tkinter.END, "Some error occured. Please see the python console.")
+					self.display_element.insert(Tkinter.END, "Some error occurred. Please see the python console.")
 				else:
 					self.display_element.insert(Tkinter.END, str(e.message))
 

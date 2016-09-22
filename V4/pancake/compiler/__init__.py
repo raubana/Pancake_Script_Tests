@@ -28,6 +28,8 @@ def compile(script):
 	gotoifyer.process(tokenlist)
 	unblocker.process(tokenlist)
 
+	return tokenlist
+
 
 def generate(tokenlist):
 	return tokenlist_to_pccode.generate(tokenlist)

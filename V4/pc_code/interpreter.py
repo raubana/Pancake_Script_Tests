@@ -33,7 +33,7 @@ def _print(interpreter, args):
 	L = []
 	for x in args:
 		L.append(str(x))
-	interpreter.print_buffer.append(string.join(L, ", "))
+	interpreter.print_buffer.append(string.join(L, " "))
 
 
 
