@@ -99,13 +99,14 @@ class Main(object):
 		w = Tkinter.Label(center_frame, text="COMPILED TOKENS:")
 		w.pack()
 
-		scrollbar = Tkinter.Scrollbar(center_frame)
-		scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx = padding)
+		self.tokens_scrollbar = Tkinter.Scrollbar(center_frame)
+		self.tokens_scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx = padding)
 
-		self.tokens_frame = Tkinter.Listbox(center_frame, width=25, selectmode=Tkinter.SINGLE, yscrollcommand=scrollbar.set)
-		self.tokens_frame.pack(expand=True, fill=Tkinter.BOTH)
+		self.tokens_element = Tkinter.Text(center_frame, width=25, wrap=Tkinter.NONE, yscrollcommand=self.tokens_scrollbar.set)
+		self.tokens_element.config(state=Tkinter.DISABLED)
+		self.tokens_element.pack(expand=True, fill=Tkinter.BOTH)
 
-		scrollbar.config(command=self.tokens_frame.yview)
+		self.tokens_scrollbar.config(command=self.tokens_element.yview)
 
 		w = Tkinter.Label(left_frame, text="THE STACK:")
 		w.pack()
@@ -121,10 +122,17 @@ class Main(object):
 		self.memory_element.config(state=Tkinter.DISABLED)
 		self.memory_element.pack()
 
-		self.script_element = Tkinter.Text(right_frame, wrap=Tkinter.NONE)
+		self.script_scrollbar = Tkinter.Scrollbar(right_frame)
+		self.script_scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx=padding)
+
+		self.script_element = Tkinter.Text(right_frame, wrap=Tkinter.NONE, yscrollcommand=self.script_scrollbar.set)
 		self.script_element.config()
 		self.script_element.pack(expand=True, fill=Tkinter.BOTH)
 		self.script_element.bind("<KeyRelease>", self.on_script_change)
+
+		self.script_scrollbar.config(command=self.script_element.yview)
+
+
 
 	def on_script_change(self, *args):
 		if not self.running:
@@ -209,11 +217,13 @@ class Main(object):
 		return data
 
 	def setup_token_elements(self):
-		self.tokens_frame.delete(0,Tkinter.END)
+		self.tokens_element.config(state=Tkinter.NORMAL)
+		self.tokens_element.delete("1.0", Tkinter.END)
 		i = 0
-		for token in string.split( self.generated_script, "\n"):
-			self.tokens_frame.insert(Tkinter.END, str(i) + "   " + str(token))
+		for token in string.split( self.generated_script, "\n" ):
+			self.tokens_element.insert(Tkinter.END, str(i) + "   " + str(token) + "\n")
 			i += 1
+		self.tokens_element.config(state=Tkinter.DISABLED)
 
 	def set_needs_to_compile(self, state):
 		if state != self.needs_to_compile:
@@ -240,7 +250,10 @@ class Main(object):
 
 	def stop(self):
 		if self.running:
-			self.script_element.tag_delete("highlight")
+			self.script_element.tag_delete("current_line")
+			self.script_element.tag_delete("next_line")
+			self.tokens_element.tag_delete("current_line")
+			self.tokens_element.tag_delete("next_line")
 			self.interpreter = None
 			self.set_running(False)
 
@@ -266,10 +279,22 @@ class Main(object):
 		i = self.interpreter.current_line_index
 		i2 = self.interpreter.next_line_index
 
-		cur_tok = self.compiled_script.tokens[i]
+
+		cur_tok = None
+		next_tok = None
+
+		# I'm lazy...
+		try: cur_tok = self.compiled_script.tokens[i]
+		except: pass
+		try: next_tok = self.compiled_script.tokens[i2]
+		except: pass
 
 		#first we highlight the portion of the script being executed.
-		self.script_element.tag_delete("highlight")
+		self.script_element.tag_delete("current_line")
+		self.script_element.tag_delete("next_line")
+		self.script_element.tag_config("current_line", background="white", foreground="black")
+		self.script_element.tag_config("next_line", background="#808080")
+
 		if cur_tok is not None and cur_tok.line_number is not None:
 			line_num = cur_tok.line_number
 			char_num = cur_tok.char_number-1
@@ -283,16 +308,34 @@ class Main(object):
 				if cur_tok.type == TYPE_STRING:
 					length += 2
 			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
-			self.place_tag(self.script_element, "highlight", line_num, char_num, length)
-			self.script_element.tag_config("highlight", background="yellow", foreground="black")
+			self.place_tag(self.script_element, "current_line", line_num, char_num, length)
+
+		# Then we highlight the portion of the scrip that will execute next.
+		if next_tok is not None and next_tok.line_number is not None:
+			line_num = next_tok.line_number
+			char_num = next_tok.char_number-1
+			length = 0
+			if next_tok.type == TYPE_ASSIGN:
+				length = 1
+			elif next_tok.type == TYPE_BOOLEAN:
+				length = len(str(next_tok.value))
+			else:
+				length = len(next_tok.value)
+				if next_tok.type == TYPE_STRING:
+					length += 2
+			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
+			self.place_tag(self.script_element, "next_line", line_num, char_num, length)
 
 		#next we show which token just ran and which token will run next.
+		self.tokens_element.tag_delete("current_line")
+		self.tokens_element.tag_delete("next_line")
+		self.tokens_element.tag_config("current_line", background="white", foreground="black")
+		self.tokens_element.tag_config("next_line", background="#808080")
 		if i is not None:
-			self.tokens_frame.see(i)
-			self.tokens_frame.selection_clear(0,len(self.compiled_script.tokens))
-			self.tokens_frame.selection_set(i)
+			self.tokens_element.see("{line}.{ch}".format(line=i+1, ch=0))
+			self.place_tag(self.tokens_element, "current_line", i+1, 0, 1000)
 		if i2 is not None:
-			self.tokens_frame.activate(i2)
+			self.place_tag(self.tokens_element, "next_line", i2+1, 0, 1000)
 
 		#next we set the stack
 		stack_text = ""
