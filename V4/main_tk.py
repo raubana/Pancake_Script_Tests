@@ -8,7 +8,9 @@ except Exception, e:
 	input("Press enter to quit.")
 
 
-from interpreter import *
+import pancake.compiler, pc_code.interpreter
+from pancake.compiler.constants import *
+from pc_code.constants import *
 
 
 class Main(object):
@@ -17,12 +19,16 @@ class Main(object):
 
 		self.setup_main_gui()
 
+		self.needs_to_compile = True
 		self.running = False
 
 		self.script = ""
 
+		self.generated_script = None
+		self.compiled_script = None
 		self.interpreter = None
 
+		self.last_highlighted_syntax = time.time()
 		self.last_script_change = time.time()
 
 		self.top.mainloop()
@@ -58,8 +64,11 @@ class Main(object):
 		top_frame = Tkinter.Frame(self.main)
 		top_frame.pack(expand=False, fill=Tkinter.BOTH, padx = padding, pady = padding)
 
+		self.compile_button = Tkinter.Button(middle_frame, text="COMPILE", command=self.compile)
+		self.compile_button.pack(side=Tkinter.LEFT)
+
 		self.run_button = Tkinter.Button(middle_frame, text="RUN", command=self.do_next)
-		self.run_button.config(state=Tkinter.NORMAL)
+		self.run_button.config(state=Tkinter.DISABLED)
 		self.run_button.pack(side=Tkinter.LEFT)
 
 		self.continue_var = Tkinter.IntVar()
@@ -88,6 +97,17 @@ class Main(object):
 		right_frame = Tkinter.Frame(bottom_frame)
 		right_frame.pack(side=Tkinter.LEFT, expand=True, fill=Tkinter.BOTH, padx = padding, pady = padding)
 
+		w = Tkinter.Label(middle_frame, text="COMPILED TOKENS:")
+		w.pack()
+
+		scrollbar = Tkinter.Scrollbar(middle_frame)
+		scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx = padding)
+
+		self.tokens_frame = Tkinter.Listbox(middle_frame, selectmode=Tkinter.SINGLE, yscrollcommand=scrollbar.set)
+		self.tokens_frame.pack(expand=True, fill=Tkinter.BOTH)
+
+		scrollbar.config(command=self.tokens_frame.yview)
+
 		w = Tkinter.Label(middle_frame, text="THE STACK:")
 		w.pack()
 
@@ -113,6 +133,71 @@ class Main(object):
 			if new_script != self.script:
 				self.last_script_change = time.time()
 				self.script = new_script
+				self.set_needs_to_compile(True)
+				self.highlight_syntax()
+
+	def highlight_syntax(self):
+		ti = time.time()
+		if ti - self.last_highlighted_syntax > 0.2 and ti - self.last_script_change > 0.2:
+			self.last_highlighted_syntax = ti
+
+			tokenlist = pancake.compiler.tokenizer.tokenize(self.get_script_text(), True)
+			try:
+				pancake.compiler.op_finder.process(tokenlist, True)
+				pancake.compiler.blocker.process(tokenlist)
+				pancake.compiler.fnc_finder.process(tokenlist)
+			except:
+				pass
+
+			self.script_element.tag_delete("token_term")
+			self.script_element.tag_delete("token_string")
+			self.script_element.tag_delete("token_op")
+			self.script_element.tag_delete("token_literal")
+			self.script_element.tag_delete("token_function")
+			self.script_element.tag_delete("token_bad")
+			self.script_element.tag_delete("token_comment")
+
+			self.script_element.tag_config("token_term", foreground="#bfbf00")
+			self.script_element.tag_config("token_string", foreground="#20bf00")
+			self.script_element.tag_config("token_op", foreground="#00afbf")
+			self.script_element.tag_config("token_literal", foreground="#bf7000")
+			self.script_element.tag_config("token_function", foreground="#00bf50")
+			self.script_element.tag_config("token_bad", foreground="#ff0000")
+			self.script_element.tag_config("token_comment", foreground="#808080")
+
+			for token in tokenlist.tokens:
+				t = token.type
+				v = token.value
+
+				tag = None
+				start_line = token.line_number
+				start_char = token.char_number-1
+
+				if t == TYPE_OPERATOR:
+					length = len(v.symbol)
+				else:
+					length = len(str(v))
+
+				if t == TYPE_TERM:
+					tag = "token_term"
+				elif t == TYPE_FUNCTION:
+					tag = "token_function"
+				elif t == TYPE_OPERATOR:
+					tag = "token_op"
+				elif t == TYPE_STRING:
+					tag = "token_string"
+					length += 2
+				elif t in LITERAL_TYPES:
+					tag = "token_literal"
+				elif t == TYPE_COMMENT:
+					tag = "token_comment"
+				elif t == TYPE_NULL:
+					tag = "token_bad"
+
+				if tag is not None:
+					self.place_tag(self.script_element, tag, start_line, start_char, length)
+		else:
+			self.top.after(50, self.highlight_syntax)
 
 	def place_tag(self, element, tag_name, line_number, char_number, length):
 		element.tag_add(tag_name,
@@ -123,6 +208,23 @@ class Main(object):
 		data = str(self.script_element.get("1.0", "1000000000.0"))
 		data = data.strip()
 		return data
+
+	def setup_token_elements(self):
+		self.tokens_frame.delete(0,Tkinter.END)
+		i = 0
+		for token in string.split( self.generated_script, "\n"):
+			self.tokens_frame.insert(Tkinter.END, str(i) + "   " + str(token))
+			i += 1
+
+	def set_needs_to_compile(self, state):
+		if state != self.needs_to_compile:
+			self.needs_to_compile = state
+			if state:
+				self.compile_button.config(state=Tkinter.NORMAL)
+				self.run_button.config(state=Tkinter.DISABLED)
+			else:
+				self.compile_button.config(state=Tkinter.DISABLED)
+				self.run_button.config(state=Tkinter.NORMAL)
 
 	def set_running(self, state):
 		if state != self.running:
@@ -139,33 +241,59 @@ class Main(object):
 
 	def stop(self):
 		if self.running:
-			self.script_element.tag_delete("running")
-			self.script_element.tag_delete("next_to_run")
+			self.script_element.tag_delete("highlight")
 			self.interpreter = None
 			self.set_running(False)
 
+	def compile(self):
+		if self.needs_to_compile:
+			self.display_element.config(state=Tkinter.NORMAL)
+			self.display_element.delete(1.0, Tkinter.END)
+			try:
+				self.compiled_script = pancake.compiler.compile(self.get_script_text())
+				self.generated_script = pancake.compiler.generate(self.compiled_script)
+				self.setup_token_elements()
+				self.set_needs_to_compile(False)
+			except Exception as e:
+				if not str(e).startswith("ERROR:"):
+					traceback.print_exc()
+					self.display_element.insert(Tkinter.END, "Some error occured. Please see the python console.")
+				else:
+					self.display_element.insert(Tkinter.END, str(e.message))
+
+			self.display_element.config(state=Tkinter.DISABLED)
+
 	def analyze(self):
+		i = self.interpreter.current_line_index
+		i2 = self.interpreter.next_line_index
+
+		cur_tok = self.compiled_script.tokens[i]
+
 		#first we highlight the portion of the script being executed.
-		self.script_element.tag_delete("running")
-		line_num = self.interpreter.current_line_index
-		if line_num is not None and line_num >= 0 and line_num < len(self.interpreter.script):
-			current_line = self.interpreter.script[line_num]
-			line_length = len(current_line)
+		self.script_element.tag_delete("highlight")
+		if cur_tok is not None and cur_tok.line_number is not None:
+			line_num = cur_tok.line_number
+			char_num = cur_tok.char_number-1
+			length = 0
+			if cur_tok.type == TYPE_ASSIGN:
+				length = 1
+			elif cur_tok.type == TYPE_BOOLEAN:
+				length = len(str(cur_tok.value))
+			else:
+				length = len(cur_tok.value)
+				if cur_tok.type == TYPE_STRING:
+					length += 2
+			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
+			self.place_tag(self.script_element, "highlight", line_num, char_num, length)
+			self.script_element.tag_config("highlight", background="yellow", foreground="black")
 
-			self.script_element.see("{line}.{ch}".format(line=line_num + 1, ch=0))
-			self.place_tag(self.script_element, "running", line_num + 1, 0, line_length)
-			self.script_element.tag_config("running", background="WHITE", foreground="black")
-
-		# then we highlight the portion of the script to execute next, if there is one.
-		self.script_element.tag_delete("next_to_run")
-		line_num = self.interpreter.next_line_index
-		if line_num is not None and line_num >= 0 and line_num < len(self.interpreter.script):
-			next_line = self.interpreter.script[line_num]
-			line_length = len(next_line)
-
-			self.script_element.see("{line}.{ch}".format(line=line_num + 1, ch=0))
-			self.place_tag(self.script_element, "next_to_run", line_num + 1, 0, line_length)
-			self.script_element.tag_config("next_to_run", background="#555555")
+		#next we show which token just ran and which token will run next.
+		if i is not None:
+			self.tokens_frame.see(i)
+			self.tokens_frame.selection_clear(0,len(self.compiled_script.tokens))
+			self.tokens_frame.selection_set(i)
+		if i2 is not None:
+			self.tokens_frame.activate(i2)
 
 		#next we set the stack
 		stack_text = ""
@@ -201,7 +329,7 @@ class Main(object):
 
 	def do_next(self):
 		if self.interpreter is None:
-			self.interpreter = Interpreter(self.script)
+			self.interpreter = pc_code.interpreter.Interpreter(self.generated_script)
 			self.set_running(True)
 			self.display_element.config(state=Tkinter.NORMAL)
 			self.display_element.delete(1.0, Tkinter.END)
@@ -213,7 +341,6 @@ class Main(object):
 			try:
 				self.interpreter.go_to_next_line()
 				self.analyze()
-
 				if self.interpreter.running:
 					self.interpreter.process_current_line()
 					self.analyze()
@@ -228,6 +355,7 @@ class Main(object):
 					self.stop()
 			except Exception as e:
 				self.display_element.config(state=Tkinter.NORMAL)
+				traceback.print_exc()
 				self.display_element.insert(Tkinter.END, str(e.message))
 				self.display_element.config(state=Tkinter.DISABLED)
 

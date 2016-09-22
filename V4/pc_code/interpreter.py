@@ -153,8 +153,11 @@ class Interpreter(object):
 		arguments.reverse()
 		returned = self.functions[t2](self,arguments)
 		if returned:
-			for val in returned:
-				self.push_stack(val)
+			if type(returned) == Literal:
+				self.push_stack(returned)
+			else:
+				for val in returned:
+					self.push_stack(val)
 
 	def Op_RUNBLOCK(self):
 		value = self.pop_stack()
@@ -198,7 +201,7 @@ class Interpreter(object):
 		self.memory[location] = value
 
 	def push_stack(self, value):
-		if len(self.stack) >= STACK_SIZE: raise Exception("STACK_OVERLOW")
+		if len(self.stack) >= STACK_SIZE: raise Exception("STACK_OVERFLOW")
 		self.stack.append(value)
 
 	def pop_stack(self):
@@ -212,7 +215,7 @@ class Interpreter(object):
 			return Literal(s == "true")
 		# string
 		if s.startswith("\"") and s.endswith("\""):
-			return Literal(s)
+			return Literal(s[1:-1])
 		# number
 		could_be_number = True
 		for ch in s:
