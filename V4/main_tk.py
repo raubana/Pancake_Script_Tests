@@ -118,14 +118,14 @@ class Main(object):
 		w = Tkinter.Label(left_frame, text="THE STACK:")
 		w.pack()
 
-		self.stack_element = Tkinter.Text(left_frame, width=20, height=STACK_SIZE)
+		self.stack_element = Tkinter.Text(left_frame, width=20, height=STACK_SIZE, wrap=Tkinter.NONE)
 		self.stack_element.config(state=Tkinter.DISABLED)
 		self.stack_element.pack()
 
 		w = Tkinter.Label(left_frame, text="MEMORY:")
 		w.pack()
 
-		self.memory_element = Tkinter.Text(left_frame, width=20, height=MEMORY_SIZE)
+		self.memory_element = Tkinter.Text(left_frame, width=20, height=MEMORY_SIZE, wrap=Tkinter.NONE)
 		self.memory_element.config(state=Tkinter.DISABLED)
 		self.memory_element.pack()
 

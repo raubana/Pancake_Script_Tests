@@ -1,5 +1,5 @@
-money = 100;
-bet = 5;
+money = 250;
+bet = 10;
 while(money >= bet){
 	print("MONEY: $", money);
 	print("You bet $", bet, ".");
@@ -11,22 +11,24 @@ while(money >= bet){
 	roll2 = floor(random()*5.999)+1;
 	print(roll2);
 	print("");
+	winnings = 0;
 	if(roll1 == roll2){
 		if(roll1 == 1){
 			print("SNAKE EYES!");
-			print("You win 50");
-			money = money + 50;
+			winnings = 10*bet;
 		}else{
 			print("Pair!");
-			print("You win 20");
-			money = money + 20;
+			winnings = 2*bet;
 		};
 	}elseif( roll1 + roll2 == 7){
 		print("Lucky 7!");
-		print("You win 10");
-		money = money + 10;
+		winnings = bet;
+	};
+	if( winnings > 0){
+		print("You won $",winnings);
+		money = money + winnings;
 	}else{
-		print("Sorry, try again!");
+		print("Sorry!");
 	};
 	print("======================");
 };
