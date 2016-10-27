@@ -8,7 +8,7 @@ import random, math
 def negate(interpreter, args):
 	if len(args) != 1: raise Exception("NUM_ARGS")
 	return [Literal(-args[0].value)]
-Interpreter.functions["negate"] = negate
+Interpreter.functions["neg"] = negate
 
 def add(interpreter, args):
 	if len(args) != 2: raise Exception("NUM_ARGS")

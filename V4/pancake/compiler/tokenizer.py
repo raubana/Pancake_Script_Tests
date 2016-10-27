@@ -126,15 +126,11 @@ class Tokenizer(object):
 					else:
 						current_token.value += ch
 				elif current_token.type == TYPE_OTHER:
-					if current_token.value == "-" and ch in NUMBER_CHARACTERS:
-						current_token.type = TYPE_NUMBER
-						current_token.value += ch
+					if ch in WHITESPACE or ch in NUMBER_CHARACTERS or ch in VARIABLE_NAME_CHARACTERS or \
+						ch in ENCLOSING_CHARACTERS or ch == EOL_CHAR or ch == STRING_CHAR:
+						finish_token = True
 					else:
-						if ch in WHITESPACE or ch in NUMBER_CHARACTERS or ch in VARIABLE_NAME_CHARACTERS or \
-							ch in ENCLOSING_CHARACTERS or ch == EOL_CHAR or ch == STRING_CHAR:
-							finish_token = True
-						else:
-							current_token.value += ch
+						current_token.value += ch
 				if finish_token:
 					if push_token:
 						tokens.push(current_token)

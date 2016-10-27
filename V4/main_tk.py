@@ -43,7 +43,7 @@ class Main(object):
 		label_color = "#808080"
 
 		self.top.option_add("*Font", "Consolas")
-		self.top.option_add("*Font", "Consolas 14")
+		self.top.option_add("*Font", "Consolas 14 bold")
 		self.top.option_add("*Background", element_color)
 		self.top.option_add("*Frame.Background", frame_color)
 		self.top.option_add("*Label.Background", frame_color)

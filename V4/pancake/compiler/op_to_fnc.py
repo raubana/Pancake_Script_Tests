@@ -19,7 +19,7 @@ class Op2Fnc(object):
 			if t == TYPE_OPERATOR:
 				num_operands = token.value.num_operands
 				function = token.value.function
-				if function == "assign":
+				if function == "=":
 					token.type = TYPE_ASSIGN
 					token.value = "="
 				else:
@@ -27,7 +27,7 @@ class Op2Fnc(object):
 					i += 1
 
 					token.type = TYPE_FUNCTION
-					token.value = token.value.symbol
+					token.value = token.value.function
 
 			i += 1
 

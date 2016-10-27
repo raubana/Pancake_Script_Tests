@@ -38,7 +38,7 @@ class Shunter(object):
 						if t2 == TYPE_OPERATOR:
 							ass = v.associativity
 							pres = v2.precedence - v.precedence
-							if ((ass == LEFT_TO_RIGHT and pres <= 0) or (ass == RIGHT_TO_LEFT and pres > 0)):
+							if ((ass == LEFT_TO_RIGHT and pres <= 0) or (ass == RIGHT_TO_LEFT and pres < 0)):
 								output.append(stack.pop())
 							else:
 								break
