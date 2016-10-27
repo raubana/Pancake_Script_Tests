@@ -27,9 +27,9 @@ class Op_Finder(object):
 			if token.type == TYPE_OTHER:
 				match = Op_Finder.find_matching_op(token.value)
 				if not match and len(token.value) >= 2:
-					tokenlist.tokens.insert(i + 1,
-											Token(TYPE_OTHER, token.value[1:], token.line_number, token.char_number + 1))
+					tokenlist.tokens.insert(i + 1, Token(TYPE_OTHER, token.value[1:], token.line_number, token.char_number + 1, token.length-1))
 					token.value = token.value[0]
+					token.length = 1
 			i += 1
 
 		# Then we parse all of the ops.

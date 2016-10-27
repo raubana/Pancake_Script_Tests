@@ -23,7 +23,7 @@ class Op2Fnc(object):
 					token.type = TYPE_ASSIGN
 					token.value = "="
 				else:
-					tokenlist.tokens.insert(i, Token(TYPE_NUMBER, num_operands, None, None))
+					tokenlist.tokens.insert(i, Token(TYPE_NUMBER, str(num_operands), None, None))
 					i += 1
 
 					token.type = TYPE_FUNCTION

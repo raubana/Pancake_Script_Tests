@@ -3,18 +3,26 @@ from error_format import *
 
 
 class Token(object):
-	def __init__(self, type, value, line_number, char_number):
+	def __init__(self, type, value, line_number, char_number, length = None):
 		self.type = type
 		self.value = value
 		self.line_number = line_number
 		self.char_number = char_number
+		if length == None:
+			if value == None:
+				self.length = 0
+			else:
+				self.length = len(value)
+		else:
+			self.length = length
 
 	def __str__(self):
-		return "T({type}, {value}, {line}, {char})".format(
+		return "T({type}, {value}, {line}, {char}, {len})".format(
 			type=TYPE_NAMES[self.type],
 			value=repr(self.value),
 			line=self.line_number,
-			char=self.char_number
+			char=self.char_number,
+			len=self.length
 		)
 
 	def __repr__(self):
@@ -70,6 +78,7 @@ class Tokenizer(object):
 				elif ch == STRING_CHAR: #string
 					current_token.type = TYPE_STRING
 					current_token.value = ""
+					current_token.length = 0
 				elif ch == EOL_CHAR: # End Of Line
 					current_token.type = TYPE_EOL
 					tokens.push(current_token)
@@ -100,9 +109,11 @@ class Tokenizer(object):
 						decrement = False
 					else:
 						current_token.value += ch
+						current_token.length += 1
 				elif current_token.type == TYPE_TERM:
 					if ch in VARIABLE_NAME_CHARACTERS:
 						current_token.value += ch
+						current_token.length += 1
 					else:
 						finish_token = True
 						if current_token.value in ["true","false"]:
@@ -111,11 +122,13 @@ class Tokenizer(object):
 				elif current_token.type == TYPE_NUMBER:
 					if ch in NUMBER_CHARACTERS:
 						current_token.value += ch
+						current_token.length += 1
 					else:
 						finish_token = True
 				elif current_token.type == TYPE_WHITESPACE:
 					if ch in WHITESPACE:
 						current_token.value += ch
+						current_token.length += 1
 					else:
 						finish_token = True
 						push_token = False
@@ -125,12 +138,15 @@ class Tokenizer(object):
 						decrement = False
 					else:
 						current_token.value += ch
+						current_token.length += 1
 				elif current_token.type == TYPE_OTHER:
 					if ch in WHITESPACE or ch in NUMBER_CHARACTERS or ch in VARIABLE_NAME_CHARACTERS or \
 						ch in ENCLOSING_CHARACTERS or ch == EOL_CHAR or ch == STRING_CHAR:
 						finish_token = True
 					else:
 						current_token.value += ch
+						current_token.length += 1
+
 				if finish_token:
 					if push_token:
 						tokens.push(current_token)

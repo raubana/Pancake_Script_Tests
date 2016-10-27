@@ -41,7 +41,8 @@ class Function2Fnc(object):
 				start_location = find_startblock_token_index(tokenlist.tokens, end_location-1)
 				arg_count = _count_args(tokenlist.tokens, start_location, end_location)
 				#print i, start_location, end_location, arg_count
-				tokenlist.tokens.insert(i, Token(TYPE_NUMBER, arg_count, None, None))
+				tokenlist.tokens.insert(i, Token(TYPE_NUMBER, str(arg_count), None, None))
+
 				i += 1
 				if v == "elseif":
 					tokenlist.tokens.insert(start_location, Token(TYPE_TERM, "else", None, None))

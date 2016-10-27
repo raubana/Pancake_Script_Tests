@@ -43,7 +43,7 @@ class Main(object):
 		label_color = "#808080"
 
 		self.top.option_add("*Font", "Consolas")
-		self.top.option_add("*Font", "Consolas 14 bold")
+		self.top.option_add("*Font", "Consolas 18 bold")
 		self.top.option_add("*Background", element_color)
 		self.top.option_add("*Frame.Background", frame_color)
 		self.top.option_add("*Label.Background", frame_color)
@@ -185,10 +185,7 @@ class Main(object):
 				start_line = token.line_number
 				start_char = token.char_number-1
 
-				if t == TYPE_OPERATOR:
-					length = len(v.symbol)
-				else:
-					length = len(str(v))
+				length = token.length
 
 				if t == TYPE_TERM:
 					tag = "token_term"
@@ -314,15 +311,9 @@ class Main(object):
 		if cur_tok is not None and cur_tok.line_number is not None:
 			line_num = cur_tok.line_number
 			char_num = cur_tok.char_number-1
-			length = 0
-			if cur_tok.type == TYPE_ASSIGN:
-				length = 1
-			elif cur_tok.type == TYPE_BOOLEAN:
-				length = len(str(cur_tok.value))
-			else:
-				length = len(cur_tok.value)
-				if cur_tok.type == TYPE_STRING:
-					length += 2
+			length = cur_tok.length
+			if cur_tok.type == TYPE_STRING:
+				length += 2
 			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
 			self.place_tag(self.script_element, "current_line", line_num, char_num, length)
 
@@ -330,15 +321,9 @@ class Main(object):
 		if next_tok is not None and next_tok.line_number is not None:
 			line_num = next_tok.line_number
 			char_num = next_tok.char_number-1
-			length = 0
-			if next_tok.type == TYPE_ASSIGN:
-				length = 1
-			elif next_tok.type == TYPE_BOOLEAN:
-				length = len(str(next_tok.value))
-			else:
-				length = len(next_tok.value)
-				if next_tok.type == TYPE_STRING:
-					length += 2
+			length = next_tok.length
+			if next_tok.type == TYPE_STRING:
+				length += 2
 			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
 			self.place_tag(self.script_element, "next_line", line_num, char_num, length)
 
