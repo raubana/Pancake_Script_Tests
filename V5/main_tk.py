@@ -410,6 +410,7 @@ class Main(object):
 				self.display_element.insert(Tkinter.END, str(e.message))
 				self.display_element.config(state=Tkinter.DISABLED)
 
+				self.analyze()
 				self.stop()
 
 		if self.interpreter is not None and self.interpreter.running:

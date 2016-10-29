@@ -27,7 +27,7 @@ class PC_Number(PC_Class):
 		return PC_Number(-self.value)
 
 	def __nonzero__(self):
-		return PC_Boolean(self.value > 0)
+		return self.value > 0
 
 	def __lt__(self, other):
 		return PC_Boolean(self.value < other.value)

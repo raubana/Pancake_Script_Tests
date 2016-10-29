@@ -104,9 +104,7 @@ class Interpreter(object):
 		if type(var_name) != Term:
 			raise Exception("WRONG_TYPE")
 
-		if type(value) == Literal:
-			pass
-		elif type(value) == Term:
+		if type(value) == Term:
 			value = self.read_ram(value.value)
 		else:
 			value = value

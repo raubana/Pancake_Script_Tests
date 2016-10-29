@@ -12,4 +12,4 @@ class PC_String(PC_Class):
 		return PC_String(self.value+str(other))
 
 	def __nonzero__(self):
-		return PC_Boolean(len(self.value) > 0)
+		return len(self.value) > 0
