@@ -1,0 +1,6 @@
+a = "Hello!";
+print(a);
+print(a.upper());
+print(a.lower());
+print(a.sub(1,3));
+print(a);

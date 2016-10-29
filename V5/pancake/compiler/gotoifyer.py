@@ -69,7 +69,7 @@ class Gotoifyer(object):
 					# Next we place a goto at the end of that body to point back at this while-function's args.
 					index = find_endblock_token_index(tokenlist.tokens, i+1)
 					goto = find_startblock_token_index(tokenlist.tokens, i-3)
-					tokenlist.tokens.insert(index-1, Token(TYPE_GOTO, goto, None, None))
+					tokenlist.tokens.insert(index-1, Token(TYPE_GOTO, goto, None, None,0))
 					increment_gotos_pointing_after_here(tokenlist, index)
 			i += 1
 
