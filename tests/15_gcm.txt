@@ -6,6 +6,13 @@ a.push(72); b.push(36);
 a.push(10); b.push(24);
 
 while(a.length() > 0){
+	call do_next;
+};
+del("temp_a", "temp_b");
+
+######################################
+
+sub do_next{
 	temp_a = a.pop();
 	temp_b = b.pop();
 	in_a = temp_a;
@@ -14,9 +21,6 @@ while(a.length() > 0){
 	print(temp_a, temp_b, output);
 	del("output");
 };
-del("temp_a", "temp_b");
-
-######################################
 
 sub gcm{
 	while(in_b != 0){
