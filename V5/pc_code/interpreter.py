@@ -153,6 +153,8 @@ class Interpreter(object):
 			raise Exception("NOT_A_FUNCTION")
 
 		returned = self.functions[t2](self,arguments)
+		self.recalculate_memory()
+
 		if returned is not None:
 			if type(returned) == list:
 				for val in returned:

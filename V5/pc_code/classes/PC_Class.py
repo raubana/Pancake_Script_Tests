@@ -15,7 +15,7 @@ class PC_Class(object):
 		return str(self.value)
 
 	def __repr__(self):
-		return "{type}: {size}: {value}".format(
+		return "{type}: {size}B: {value}".format(
 			type=self.TYPE,
 			value=repr(self.value),
 			size=self.memory_size,

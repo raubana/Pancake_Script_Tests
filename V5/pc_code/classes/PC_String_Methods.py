@@ -30,4 +30,5 @@ Interpreter.functions["STRING.toLower"] = STRING_toLower
 def STRING_toSub(interpreter, args):
 	if len(args) != 3: raise Exception("NUM_ARGS")
 	args[0].value = args[0].value[ int(args[1].value) : int(args[2].value) ]
+	args[0].calculate_memory_size()
 Interpreter.functions["STRING.toSub"] = STRING_toSub

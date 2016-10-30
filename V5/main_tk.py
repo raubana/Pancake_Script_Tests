@@ -300,7 +300,6 @@ class Main(object):
 		i = self.interpreter.current_line_index
 		i2 = self.interpreter.next_line_index
 
-
 		cur_tok = None
 		next_tok = None
 
