@@ -32,3 +32,7 @@ def STRING_toSub(interpreter, args):
 	args[0].value = args[0].value[ int(args[1].value) : int(args[2].value) ]
 	args[0].calculate_memory_size()
 Interpreter.functions["STRING.toSub"] = STRING_toSub
+
+def STRING_length(interpreter, args):
+	return len(args[0].value)
+Interpreter.functions["STRING.length"] = STRING_length

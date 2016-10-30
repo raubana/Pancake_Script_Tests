@@ -50,3 +50,7 @@ def ARRAY_set(interpreter, args):
 	args[0].value[ int(args[1].value) ] = args[2]
 	args[0].calculate_memory_size()
 Interpreter.functions["ARRAY.set"] = ARRAY_set
+
+def ARRAY_length(interpreter, args):
+	return len(args[0].value)
+Interpreter.functions["ARRAY.length"] = ARRAY_length
