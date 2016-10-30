@@ -34,11 +34,11 @@ def find_startblock_token_index(L, start_index):
 
 def increment_gotos_pointing_after_here(tokenlist, index):
 	for token in tokenlist.tokens:
-		if token.type == TYPE_GOTO and token.value > index:
+		if token.type in (TYPE_GOTO,TYPE_GOSUB) and token.value > index:
 			token.value += 1
 
 
 def decrement_gotos_pointing_after_here(tokenlist, index):
 	for token in tokenlist.tokens:
-		if token.type == TYPE_GOTO and token.value > index:
+		if token.type in (TYPE_GOTO,TYPE_GOSUB) and token.value > index:
 			token.value -= 1

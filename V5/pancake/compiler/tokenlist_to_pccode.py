@@ -20,7 +20,10 @@ class Tokenlist2PCCode(object):
 			v = token.value
 			output = ""
 			if t == TYPE_TERM:
-				output = "TRM " + v
+				if v == "return":
+					output = "RTN"
+				else:
+					output = "TRM " + v
 			elif t in LITERAL_TYPES:
 				if t == TYPE_NUMBER:
 					output = "LIT " + str(v)
@@ -38,6 +41,10 @@ class Tokenlist2PCCode(object):
 				output = v
 			elif t == TYPE_GOTO:
 				output = "GO2 " + str(v)
+			elif t == TYPE_SUBROUTINE:
+				output = "LIT false"
+			elif t == TYPE_GOSUB:
+				output = "CAL " + str(v)
 			elif t == TYPE_ASSIGN:
 				output = "ASN"
 			i += 1

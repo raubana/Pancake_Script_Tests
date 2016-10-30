@@ -1,0 +1,11 @@
+sub do_stuff{
+	c = a+b+c;
+	return;
+};
+
+a=1;
+b=2;
+c=3;
+call do_stuff;
+
+print(c);

@@ -9,6 +9,7 @@ import function_to_fnc
 import op_to_fnc
 import method_finder
 import gotoifyer
+import subroutine_finder
 import unblocker
 
 import tokenlist_to_pccode
@@ -28,6 +29,7 @@ def compile(script):
 	function_to_fnc.process(tokenlist)
 	op_to_fnc.process(tokenlist)
 	gotoifyer.process(tokenlist)
+	subroutine_finder.process(tokenlist)
 	unblocker.process(tokenlist)
 
 	return tokenlist

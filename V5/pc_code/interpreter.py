@@ -9,6 +9,9 @@ NUM_CHARS = "1234567890."
 class Term(PC_String):
 	TYPE = "TERM"
 
+class SubFlag(PC_Number):
+	TYPE = "SUB_FLAG"
+
 
 
 
@@ -77,6 +80,10 @@ class Interpreter(object):
 			self.Op_DEL(t2)
 		elif t1 == "GO2":
 			self.Op_GO2(t2)
+		elif t1 == "CAL":
+			self.Op_CAL(t2)
+		elif t1 == "RTN":
+			self.Op_RTN()
 		elif t1 == "FNC":
 			self.Op_FNC(t2)
 		elif t1 == "{":
@@ -125,6 +132,23 @@ class Interpreter(object):
 		except:
 			raise Exception("PARSE_ERROR")
 		self.next_line_index = line_num
+
+	def Op_CAL(self,t2):
+		if not t2: raise ("NO_ARGUMENT")
+		line_num = 0
+		try:
+			line_num = int(t2)
+		except:
+			raise Exception("PARSE_ERROR")
+		self.next_line_index = line_num
+		self.push_stack(SubFlag(self.current_line_index+1))
+
+	def Op_RTN(self):
+		while True:
+			token = self.pop_stack()
+			if token.TYPE == "SUB_FLAG":
+				self.next_line_index = token.value
+				break
 
 	def Op_FNC(self,t2):
 		num_args = self.pop_stack()
