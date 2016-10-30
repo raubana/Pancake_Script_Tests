@@ -46,6 +46,7 @@ Interpreter.functions["ARRAY.get"] = ARRAY_get
 
 def ARRAY_set(interpreter, args):
 	if len(args) != 3: raise Exception("NUM_ARGS")
+	if args[2].TYPE == "ARRAY": raise Exception("ARRAY_IN_ARRAY")
 	args[0].value[ int(args[1].value) ] = args[2]
 	args[0].calculate_memory_size()
 Interpreter.functions["ARRAY.set"] = ARRAY_set
