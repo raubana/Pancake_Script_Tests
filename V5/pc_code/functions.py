@@ -36,6 +36,11 @@ def modulus(interpreter, args):
 	return [args[0] % args[1]]
 Interpreter.functions["%"] = modulus
 
+def power(interpreter, args):
+	if len(args) != 2: raise Exception("NUM_ARGS")
+	return [args[0] ** args[1]]
+Interpreter.functions["^"] = power
+
 
 # Relational
 

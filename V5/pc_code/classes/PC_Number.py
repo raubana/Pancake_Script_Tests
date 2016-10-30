@@ -23,6 +23,9 @@ class PC_Number(PC_Class):
 	def __mod__(self, other):
 		return PC_Number(self.value % other.value)
 
+	def __pow__(self, other):
+		return PC_Number(self.value ** other.value)
+
 	def __neg__(self):
 		return PC_Number(-self.value)
 

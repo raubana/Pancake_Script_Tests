@@ -222,7 +222,7 @@ class Interpreter(object):
 
 	def write_ram(self, location, value):
 		if location != self.ram and len(self.ram) >= RAM_SIZE:
-			raise Exception("OUT_OF_RAM")
+			raise Exception("OUT_OF_VARS")
 		self.ram[location] = value
 		self.recalculate_memory()
 

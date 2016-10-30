@@ -28,6 +28,7 @@ create_op("*","*",4,LEFT_TO_RIGHT,2)
 create_op("/","/",4,LEFT_TO_RIGHT,2)
 create_op("%","%",4,LEFT_TO_RIGHT,2)
 create_op("-","neg",2,RIGHT_TO_LEFT,1)
+create_op("^","^",2,LEFT_TO_RIGHT,2)
 
 create_op("=","=",10,RIGHT_TO_LEFT,2)
 
