@@ -1,5 +1,5 @@
 sub do_stuff{
-	c = a+b+c;
+	output = a+b+c;
 	return;
 };
 
@@ -8,4 +8,4 @@ b=2;
 c=3;
 call do_stuff;
 
-print(c);
+print(output);
