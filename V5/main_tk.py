@@ -38,18 +38,18 @@ class Main(object):
 	def setup_main_gui(self):
 		padding = 10
 
-		element_color = "#1a1a1a"
-		frame_color = "#4d4d4d"
-		label_color = "#808080"
+		self.element_color = "#1a1a1a"
+		self.frame_color = "#4d4d4d"
+		self.label_color = "#808080"
 
 		self.top.option_add("*Font", "Consolas")
 		self.top.option_add("*Font", "Consolas 12 bold")
-		self.top.option_add("*Background", element_color)
-		self.top.option_add("*Frame.Background", frame_color)
-		self.top.option_add("*Label.Background", frame_color)
-		self.top.option_add("*Label.Foreground", label_color)
-		self.top.option_add("*Checkbutton.Background", frame_color)
-		self.top.option_add("*Button.Background", frame_color)
+		self.top.option_add("*Background", self.element_color)
+		self.top.option_add("*Frame.Background", self.frame_color)
+		self.top.option_add("*Label.Background", self.frame_color)
+		self.top.option_add("*Label.Foreground", self.label_color)
+		self.top.option_add("*Checkbutton.Background", self.frame_color)
+		self.top.option_add("*Button.Background", self.frame_color)
 		self.top.option_add("*Foreground", "white")
 		self.top.option_add("*selectBackground", "white")
 		self.top.option_add("*selectForeground", "black")
@@ -240,22 +240,22 @@ class Main(object):
 			self.needs_to_compile = state
 			if state:
 				self.compile_button.config(state=Tkinter.NORMAL)
-				self.run_button.config(state=Tkinter.DISABLED)
+				self.run_button.config(state=Tkinter.DISABLED, bg=self.frame_color)
 			else:
 				self.compile_button.config(state=Tkinter.DISABLED)
-				self.run_button.config(state=Tkinter.NORMAL)
+				self.run_button.config(state=Tkinter.NORMAL, bg="dark green")
 
 	def set_running(self, state):
 		if state != self.running:
 			self.running = state
 			if state:
 				self.script_element.config(state=Tkinter.DISABLED)
-				self.stop_button.config(state=Tkinter.NORMAL)
+				self.stop_button.config(state=Tkinter.NORMAL, bg="dark red")
 				if self.continue_var.get():
 					self.run_button.config(state=Tkinter.DISABLED)
 			else:
 				self.script_element.config(state=Tkinter.NORMAL)
-				self.stop_button.config(state=Tkinter.DISABLED)
+				self.stop_button.config(state=Tkinter.DISABLED, bg=self.frame_color)
 				self.run_button.config(state=Tkinter.NORMAL)
 
 	def faster(self):
