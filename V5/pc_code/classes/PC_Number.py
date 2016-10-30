@@ -1,5 +1,5 @@
-from PC_Class import *
-from PC_Boolean import *
+from PC_Class import PC_Class
+from PC_Boolean import PC_Boolean
 
 
 class PC_Number(PC_Class):

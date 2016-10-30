@@ -1,4 +1,4 @@
-from PC_Class import *
+from PC_Class import PC_Class
 
 
 class PC_Boolean(PC_Class):

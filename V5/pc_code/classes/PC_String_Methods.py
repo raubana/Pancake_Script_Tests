@@ -1,4 +1,5 @@
-from PC_String import *
+from PC_String import PC_String
+from PC_Number import PC_Number
 from ..interpreter import Interpreter
 
 
@@ -34,5 +35,5 @@ def STRING_toSub(interpreter, args):
 Interpreter.functions["STRING.toSub"] = STRING_toSub
 
 def STRING_length(interpreter, args):
-	return len(args[0].value)
+	return PC_Number(len(args[0].value))
 Interpreter.functions["STRING.length"] = STRING_length

@@ -1,0 +1,31 @@
+a = Array();
+b = Array();
+
+a.push(25); b.push(1000);
+a.push(72); b.push(36);
+a.push(10); b.push(24);
+
+while(a.length() > 0){
+	temp_a = a.pop();
+	temp_b = b.pop();
+	in_a = temp_a;
+	in_b = temp_b;
+	call gcm;
+	print(temp_a, temp_b, output);
+	del("output");
+};
+del("temp_a", "temp_b");
+
+######################################
+
+sub gcm{
+	while(in_b != 0){
+		temp = in_b;
+		in_b = in_a % in_b;
+		in_a = temp;
+		del("temp");
+	};
+	del("in_b");
+	output = in_a;
+	del("in_a");
+};

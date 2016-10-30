@@ -1,4 +1,5 @@
-from PC_Array import *
+from PC_Array import PC_Array
+from PC_Number import PC_Number
 from ..interpreter import Interpreter
 
 
@@ -52,5 +53,5 @@ def ARRAY_set(interpreter, args):
 Interpreter.functions["ARRAY.set"] = ARRAY_set
 
 def ARRAY_length(interpreter, args):
-	return len(args[0].value)
+	return PC_Number(len(args[0].value))
 Interpreter.functions["ARRAY.length"] = ARRAY_length

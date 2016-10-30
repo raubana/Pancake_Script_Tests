@@ -16,7 +16,13 @@ class PC_Array(PC_Class):
 			self.memory_size += val.get_memory_size()
 
 	def __str__(self):
-		return str(self.value)
+		output = "["
+		for i in xrange(len(self.value)):
+			output += str(self.value[i])
+			if i < len(self.value) - 1:
+				output += ", "
+		output += "]"
+		return output
 
 	def __repr__(self):
 		output = ""
