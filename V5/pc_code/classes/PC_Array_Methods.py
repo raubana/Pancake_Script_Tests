@@ -38,3 +38,14 @@ def ARRAY_slice(interpreter, args):
 	if len(args) != 3: raise Exception("NUM_ARGS")
 	return PC_Array(args[0].value[ int(args[1].value) : int(args[2].value) ])
 Interpreter.functions["ARRAY.slice"] = ARRAY_slice
+
+def ARRAY_get(interpreter, args):
+	if len(args) != 2: raise Exception("NUM_ARGS")
+	return args[0].value[ int(args[1].value) ]
+Interpreter.functions["ARRAY.get"] = ARRAY_get
+
+def ARRAY_set(interpreter, args):
+	if len(args) != 3: raise Exception("NUM_ARGS")
+	args[0].value[ int(args[1].value) ] = args[2]
+	args[0].calculate_memory_size()
+Interpreter.functions["ARRAY.set"] = ARRAY_set
