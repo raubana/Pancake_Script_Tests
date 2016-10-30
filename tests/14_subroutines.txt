@@ -1,11 +1,11 @@
 sub do_stuff{
-	output = a+b+c;
+	output = in_a + in_b + in_c;
 	return;
 };
 
-a=1;
-b=2;
-c=3;
+in_a = 1;
+in_b = 2;
+in_c = 3;
 call do_stuff;
 
-print(output);
+print( output );
