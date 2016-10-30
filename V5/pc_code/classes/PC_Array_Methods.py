@@ -8,12 +8,14 @@ Interpreter.functions["Array"] = ARRAY_new
 
 def ARRAY_push(interpreter, args):
 	if len(args) != 2: raise Exception("NUM_ARGS")
+	if args[1].TYPE == "ARRAY": raise Exception("ARRAY_IN_ARRAY")
 	args[0].value.append(args[1])
 	args[0].calculate_memory_size()
 Interpreter.functions["ARRAY.push"] = ARRAY_push
 
 def ARRAY_pushAt(interpreter, args):
 	if len(args) != 3: raise Exception("NUM_ARGS")
+	if args[1].TYPE == "ARRAY": raise Exception("ARRAY_IN_ARRAY")
 	args[0].value.insert(args[2].value, args[1])
 	args[0].calculate_memory_size()
 Interpreter.functions["ARRAY.pushAt"] = ARRAY_pushAt
