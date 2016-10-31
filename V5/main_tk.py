@@ -124,26 +124,31 @@ class Main(object):
 			self.compile_button = Tkinter.Button(self.buttons_frame, text="COMPILE", command=self.compile)
 			self.compile_button.grid(column=0, row=0, padx=5)
 
+			self.instant_var = Tkinter.IntVar()
+			self.instant_checkbutton = Tkinter.Checkbutton(self.buttons_frame, text="Instant",
+															variable=self.instant_var)
+			self.instant_checkbutton.grid(column=1, row=0, padx=5)
+
 			self.run_button = Tkinter.Button(self.buttons_frame, text="RUN", command=self.do_next)
 			self.run_button.config(state=Tkinter.DISABLED)
-			self.run_button.grid(column=1, row=0, padx=5)
+			self.run_button.grid(column=2, row=0, padx=5)
 
 			self.continue_var = Tkinter.IntVar()
 			self.continue_checkbutton = Tkinter.Checkbutton(self.buttons_frame, text="Continue", variable=self.continue_var)
-			self.continue_checkbutton.grid(column=2, row=0, padx=5)
+			self.continue_checkbutton.grid(column=3, row=0, padx=5)
 
 			self.slower_button = Tkinter.Button(self.buttons_frame, text="<", command=self.slower)
-			self.slower_button.grid(column=3, row=0, padx=5)
+			self.slower_button.grid(column=4, row=0, padx=5)
 
 			self.speed_label = Tkinter.Label(self.buttons_frame, text="0")
-			self.speed_label.grid(column=4, row=0, padx=5)
+			self.speed_label.grid(column=5, row=0, padx=5)
 
 			self.faster_button = Tkinter.Button(self.buttons_frame, text=">", command=self.faster)
-			self.faster_button.grid(column=5, row=0, padx=5)
+			self.faster_button.grid(column=6, row=0, padx=5)
 
 			self.stop_button = Tkinter.Button(self.buttons_frame, text="STOP", command=self.stop)
 			self.stop_button.config(state=Tkinter.DISABLED)
-			self.stop_button.grid(column=6, row=0, padx=50)
+			self.stop_button.grid(column=7, row=0, padx=50)
 
 		self.output_element = self.create_scrollable_text_element("Output", self.root, 0, 4, 3, 1)
 
@@ -155,6 +160,13 @@ class Main(object):
 				self.script = new_script
 				self.set_needs_to_compile(True)
 				self.highlight_syntax()
+
+				if self.instant_var.get():
+					self.stop()
+					self.compile()
+					if not self.needs_to_compile:
+						self.set_running(True)
+						self.do_next()
 
 	def highlight_syntax(self):
 		ti = time.time()
@@ -249,7 +261,8 @@ class Main(object):
 		if state != self.running:
 			self.running = state
 			if state:
-				self.script_element.config(state=Tkinter.DISABLED)
+				if not self.instant_var.get():
+					self.script_element.config(state=Tkinter.DISABLED)
 				self.stop_button.config(state=Tkinter.NORMAL, bg="dark red")
 				if self.continue_var.get():
 					self.run_button.config(state=Tkinter.DISABLED)
@@ -312,38 +325,40 @@ class Main(object):
 		#first we highlight the portion of the script being executed.
 		self.script_element.tag_delete("current_line")
 		self.script_element.tag_delete("next_line")
-		self.script_element.tag_config("current_line", background="white", foreground="black")
-		self.script_element.tag_config("next_line", background="#808080")
+		if not self.instant_var.get():
+			self.script_element.tag_config("current_line", background="white", foreground="black")
+			self.script_element.tag_config("next_line", background="#808080")
 
-		if cur_tok is not None and cur_tok.line_number is not None:
-			line_num = cur_tok.line_number
-			char_num = cur_tok.char_number-1
-			length = cur_tok.length
-			if cur_tok.type == TYPE_STRING:
-				length += 2
-			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
-			self.place_tag(self.script_element, "current_line", line_num, char_num, length)
+			if cur_tok is not None and cur_tok.line_number is not None:
+				line_num = cur_tok.line_number
+				char_num = cur_tok.char_number-1
+				length = cur_tok.length
+				if cur_tok.type == TYPE_STRING:
+					length += 2
+				self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
+				self.place_tag(self.script_element, "current_line", line_num, char_num, length)
 
-		# Then we highlight the portion of the scrip that will execute next.
-		if next_tok is not None and next_tok.line_number is not None:
-			line_num = next_tok.line_number
-			char_num = next_tok.char_number-1
-			length = next_tok.length
-			if next_tok.type == TYPE_STRING:
-				length += 2
-			self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
-			self.place_tag(self.script_element, "next_line", line_num, char_num, length)
+			# Then we highlight the portion of the scrip that will execute next.
+			if next_tok is not None and next_tok.line_number is not None:
+				line_num = next_tok.line_number
+				char_num = next_tok.char_number-1
+				length = next_tok.length
+				if next_tok.type == TYPE_STRING:
+					length += 2
+				self.script_element.see("{line}.{ch}".format(line=line_num, ch=char_num))
+				self.place_tag(self.script_element, "next_line", line_num, char_num, length)
 
 		#next we show which token just ran and which token will run next.
 		self.tokens_element.tag_delete("current_line")
 		self.tokens_element.tag_delete("next_line")
-		self.tokens_element.tag_config("current_line", background="white", foreground="black")
-		self.tokens_element.tag_config("next_line", background="#808080")
-		if i is not None:
-			self.tokens_element.see("{line}.{ch}".format(line=i+1, ch=0))
-			self.place_tag(self.tokens_element, "current_line", i+1, 0, 1000)
-		if i2 is not None:
-			self.place_tag(self.tokens_element, "next_line", i2+1, 0, 1000)
+		if not self.instant_var.get():
+			self.tokens_element.tag_config("current_line", background="white", foreground="black")
+			self.tokens_element.tag_config("next_line", background="#808080")
+			if i is not None:
+				self.tokens_element.see("{line}.{ch}".format(line=i+1, ch=0))
+				self.place_tag(self.tokens_element, "current_line", i+1, 0, 1000)
+			if i2 is not None:
+				self.place_tag(self.tokens_element, "next_line", i2+1, 0, 1000)
 
 		#next we set the stack
 		stack_text = ""
