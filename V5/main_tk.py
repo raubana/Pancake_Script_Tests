@@ -351,14 +351,13 @@ class Main(object):
 		#next we show which token just ran and which token will run next.
 		self.tokens_element.tag_delete("current_line")
 		self.tokens_element.tag_delete("next_line")
-		if not self.instant_var.get():
-			self.tokens_element.tag_config("current_line", background="white", foreground="black")
-			self.tokens_element.tag_config("next_line", background="#808080")
-			if i is not None:
-				self.tokens_element.see("{line}.{ch}".format(line=i+1, ch=0))
-				self.place_tag(self.tokens_element, "current_line", i+1, 0, 1000)
-			if i2 is not None:
-				self.place_tag(self.tokens_element, "next_line", i2+1, 0, 1000)
+		self.tokens_element.tag_config("current_line", background="white", foreground="black")
+		self.tokens_element.tag_config("next_line", background="#808080")
+		if i is not None:
+			self.tokens_element.see("{line}.{ch}".format(line=i+1, ch=0))
+			self.place_tag(self.tokens_element, "current_line", i+1, 0, 1000)
+		if i2 is not None:
+			self.place_tag(self.tokens_element, "next_line", i2+1, 0, 1000)
 
 		#next we set the stack
 		stack_text = ""
