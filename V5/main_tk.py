@@ -15,7 +15,7 @@ from pc_code.constants import *
 
 class Main(object):
 	def __init__(self):
-		self.top = Tkinter.Tk()
+		self.root = Tkinter.Tk()
 
 		self.setup_main_gui()
 
@@ -33,7 +33,35 @@ class Main(object):
 		self.last_highlighted_syntax = time.time()
 		self.last_script_change = time.time()
 
-		self.top.mainloop()
+		self.root.mainloop()
+
+	def create_scrollable_text_element(self, label, parent, column, row, columnspan=1, rowspan=1):
+		frame = Tkinter.LabelFrame(parent, text=label, bg=self.frame_color, padx=10, pady=10, borderwidth=0)
+		frame.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan, sticky=Tkinter.W+Tkinter.E+Tkinter.N+Tkinter.S)
+
+		frame.columnconfigure(0, weight=1)
+		frame.columnconfigure(1, weight=0)
+
+		frame.rowconfigure(0, weight=1)
+		frame.rowconfigure(1, weight=0)
+
+		text_element = Tkinter.Text(frame, state=Tkinter.DISABLED, wrap=Tkinter.NONE, width=0, height=0)
+		xscrollbar = Tkinter.Scrollbar(frame, orient=Tkinter.HORIZONTAL)
+		yscrollbar = Tkinter.Scrollbar(frame)
+
+		text_element.config(
+			xscrollcommand=xscrollbar.set,
+			yscrollcommand=yscrollbar.set
+		)
+
+		xscrollbar.config(command=text_element.xview)
+		yscrollbar.config(command=text_element.yview)
+
+		text_element.grid(column=0, row=0, sticky=Tkinter.W+Tkinter.E+Tkinter.N+Tkinter.S)
+		xscrollbar.grid(column=0, row=1, sticky=Tkinter.W+Tkinter.E)
+		yscrollbar.grid(column=1, row=0, sticky=Tkinter.N+Tkinter.S)
+
+		return text_element
 
 	def setup_main_gui(self):
 		padding = 10
@@ -42,110 +70,81 @@ class Main(object):
 		self.frame_color = "#4d4d4d"
 		self.label_color = "#808080"
 
-		self.top.option_add("*Font", "Consolas")
-		self.top.option_add("*Font", "Consolas 12 bold")
-		self.top.option_add("*Background", self.element_color)
-		self.top.option_add("*Frame.Background", self.frame_color)
-		self.top.option_add("*Label.Background", self.frame_color)
-		self.top.option_add("*Label.Foreground", self.label_color)
-		self.top.option_add("*Checkbutton.Background", self.frame_color)
-		self.top.option_add("*Button.Background", self.frame_color)
-		self.top.option_add("*Foreground", "white")
-		self.top.option_add("*selectBackground", "white")
-		self.top.option_add("*selectForeground", "black")
+		self.root.option_add("*Font", "Consolas")
+		self.root.option_add("*Font", "Consolas 12 bold")
+		self.root.option_add("*Background", self.element_color)
+		self.root.option_add("*Frame.Background", self.frame_color)
+		self.root.option_add("*Label.Background", self.frame_color)
+		self.root.option_add("*Label.Foreground", self.label_color)
+		self.root.option_add("*Checkbutton.Background", self.frame_color)
+		self.root.option_add("*Button.Background", self.frame_color)
+		self.root.option_add("*Foreground", "white")
+		self.root.option_add("*selectBackground", "white")
+		self.root.option_add("*selectForeground", "black")
 
-		self.main = Tkinter.Frame(self.top)
-		self.main.pack(expand=True, fill=Tkinter.BOTH)
+		self.root.config(padx=10, pady=10, bg=self.frame_color)
 
-		top_frame = Tkinter.Frame(self.main)
-		top_frame.pack(expand=False, fill=Tkinter.BOTH)
+		self.root.columnconfigure(0, weight=3, pad=10)
+		self.root.columnconfigure(1, weight=1, pad=10)
+		self.root.columnconfigure(2, weight=1, pad=10)
 
-		middle_frame = Tkinter.Frame(self.main)
-		middle_frame.pack(expand=True, fill=Tkinter.BOTH, padx = padding)
+		self.root.rowconfigure(0, weight=1)
+		self.root.rowconfigure(1, weight=1)
+		self.root.rowconfigure(2, weight=0)
+		self.root.rowconfigure(3, weight=0)
+		self.root.rowconfigure(4, weight=1)
 
-		bottom_frame = Tkinter.Frame(self.main)
-		bottom_frame.pack(expand=True, fill=Tkinter.BOTH, padx = padding, pady = padding)
-
-		self.compile_button = Tkinter.Button(middle_frame, text="COMPILE", command=self.compile)
-		self.compile_button.pack(side=Tkinter.LEFT)
-
-		self.run_button = Tkinter.Button(middle_frame, text="RUN", command=self.do_next)
-		self.run_button.config(state=Tkinter.DISABLED)
-		self.run_button.pack(side=Tkinter.LEFT)
-
-		self.continue_var = Tkinter.IntVar()
-		self.continue_checkbutton = Tkinter.Checkbutton(middle_frame, text="Continue", variable=self.continue_var)
-		self.continue_checkbutton.pack(side=Tkinter.LEFT)
-
-		self.slower_button = Tkinter.Button(middle_frame, text="<", command=self.slower)
-		self.slower_button.pack(side=Tkinter.LEFT)
-
-		self.speed_label = Tkinter.Label(middle_frame, text="0")
-		self.speed_label.pack(side=Tkinter.LEFT)
-
-		self.faster_button = Tkinter.Button(middle_frame, text=">", command=self.faster)
-		self.faster_button.pack(side=Tkinter.LEFT)
-
-		self.stop_button = Tkinter.Button(middle_frame, text="STOP", command=self.stop)
-		self.stop_button.config(state=Tkinter.DISABLED)
-		self.stop_button.pack(side=Tkinter.LEFT, padx = padding*3)
-
-		self.display_element = Tkinter.Text(bottom_frame)
-		self.display_element.config(state=Tkinter.DISABLED)
-		self.display_element.pack(expand=True, fill=Tkinter.BOTH)
-
-		left_frame = Tkinter.Frame(top_frame)
-		left_frame.pack(side=Tkinter.LEFT, fill=Tkinter.Y, padx = padding, pady = padding)
-
-		center_frame = Tkinter.Frame(top_frame)
-		center_frame.pack(side=Tkinter.LEFT, fill=Tkinter.Y, pady = padding)
-
-		right_frame = Tkinter.Frame(top_frame)
-		right_frame.pack(side=Tkinter.LEFT, expand=True, fill=Tkinter.BOTH, padx = padding, pady = padding)
-
-		w = Tkinter.Label(center_frame, text="COMPILED TOKENS:")
-		w.pack()
-
-		self.tokens_scrollbar = Tkinter.Scrollbar(center_frame)
-		self.tokens_scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx = padding)
-
-		self.tokens_element = Tkinter.Text(center_frame, width=30, wrap=Tkinter.NONE, yscrollcommand=self.tokens_scrollbar.set)
-		self.tokens_element.config(state=Tkinter.DISABLED)
-		self.tokens_element.pack(expand=True, fill=Tkinter.BOTH)
-
-		self.tokens_scrollbar.config(command=self.tokens_element.yview)
-
-		w = Tkinter.Label(left_frame, text="STACK:")
-		w.pack()
-
-		self.stack_element = Tkinter.Text(left_frame, width=30, height=STACK_SIZE, wrap=Tkinter.NONE)
-		self.stack_element.config(state=Tkinter.DISABLED)
-		self.stack_element.pack()
-
-		w = Tkinter.Label(left_frame, text="RAM:")
-		w.pack()
-
-		self.ram_element = Tkinter.Text(left_frame, width=30, height=RAM_SIZE, wrap=Tkinter.NONE)
-		self.ram_element.config(state=Tkinter.DISABLED)
-		self.ram_element.pack()
-
-		w = Tkinter.Label(left_frame, text="MEMORY:")
-		w.pack()
-
-		self.memory_label_text = Tkinter.StringVar()
-		self.memory_label = Tkinter.Label(left_frame, textvariable=self.memory_label_text)
-		self.memory_label.pack()
-		self.memory_label_text.set("0/"+str(MEMORY_SIZE)+" bytes")
-
-		self.script_scrollbar = Tkinter.Scrollbar(right_frame)
-		self.script_scrollbar.pack(side=Tkinter.RIGHT, expand=True, fill=Tkinter.Y, padx=padding)
-
-		self.script_element = Tkinter.Text(right_frame, wrap=Tkinter.NONE, yscrollcommand=self.script_scrollbar.set)
-		self.script_element.config()
-		self.script_element.pack(expand=True, fill=Tkinter.BOTH)
+		self.script_element = self.create_scrollable_text_element("Editor", self.root, 0, 0, 1, 3)
+		self.script_element.config(state=Tkinter.NORMAL)
 		self.script_element.bind("<KeyRelease>", self.on_script_change)
 
-		self.script_scrollbar.config(command=self.script_element.yview)
+		self.tokens_element = self.create_scrollable_text_element("Tokens", self.root, 1, 0, 1, 3)
+
+		self.stack_element = self.create_scrollable_text_element("Stack", self.root, 2, 0, 1, 1)
+
+		self.ram_element = self.create_scrollable_text_element("RAM", self.root, 2, 1, 1, 1)
+
+		self.memory_frame = Tkinter.LabelFrame(self.root, text="Memory", bg=self.frame_color, borderwidth=0)
+		self.memory_frame.grid(column=2, row=2, sticky=Tkinter.W+Tkinter.E+Tkinter.N+Tkinter.S)
+
+		self.memory_frame.columnconfigure(0, weight=1)
+		self.memory_frame.rowconfigure(0, weight=1)
+
+		if True:
+			self.memory_label_text = Tkinter.StringVar()
+			self.memory_label = Tkinter.Label(self.memory_frame, textvariable=self.memory_label_text, width=20)
+			self.memory_label_text.set("0/" + str(MEMORY_SIZE) + " bytes")
+			self.memory_label.grid(sticky=Tkinter.W+Tkinter.E+Tkinter.N+Tkinter.S)
+
+		self.buttons_frame = Tkinter.Frame(self.root, bg=self.frame_color)
+		self.buttons_frame.grid(column=0, row=3, columnspan=3, sticky=Tkinter.W+Tkinter.E+Tkinter.N+Tkinter.S)
+
+		if True:
+			self.compile_button = Tkinter.Button(self.buttons_frame, text="COMPILE", command=self.compile)
+			self.compile_button.grid(column=0, row=0, padx=5)
+
+			self.run_button = Tkinter.Button(self.buttons_frame, text="RUN", command=self.do_next)
+			self.run_button.config(state=Tkinter.DISABLED)
+			self.run_button.grid(column=1, row=0, padx=5)
+
+			self.continue_var = Tkinter.IntVar()
+			self.continue_checkbutton = Tkinter.Checkbutton(self.buttons_frame, text="Continue", variable=self.continue_var)
+			self.continue_checkbutton.grid(column=2, row=0, padx=5)
+
+			self.slower_button = Tkinter.Button(self.buttons_frame, text="<", command=self.slower)
+			self.slower_button.grid(column=3, row=0, padx=5)
+
+			self.speed_label = Tkinter.Label(self.buttons_frame, text="0")
+			self.speed_label.grid(column=4, row=0, padx=5)
+
+			self.faster_button = Tkinter.Button(self.buttons_frame, text=">", command=self.faster)
+			self.faster_button.grid(column=5, row=0, padx=5)
+
+			self.stop_button = Tkinter.Button(self.buttons_frame, text="STOP", command=self.stop)
+			self.stop_button.config(state=Tkinter.DISABLED)
+			self.stop_button.grid(column=6, row=0, padx=50)
+
+		self.output_element = self.create_scrollable_text_element("Output", self.root, 0, 4, 3, 1)
 
 	def on_script_change(self, *args):
 		if not self.running:
@@ -214,7 +213,7 @@ class Main(object):
 				if tag is not None:
 					self.place_tag(self.script_element, tag, start_line, start_char, length)
 		else:
-			self.top.after(50, self.highlight_syntax)
+			self.root.after(50, self.highlight_syntax)
 
 	def place_tag(self, element, tag_name, line_number, char_number, length):
 		element.tag_add(tag_name,
@@ -280,8 +279,8 @@ class Main(object):
 
 	def compile(self):
 		if self.needs_to_compile:
-			self.display_element.config(state=Tkinter.NORMAL)
-			self.display_element.delete(1.0, Tkinter.END)
+			self.output_element.config(state=Tkinter.NORMAL)
+			self.output_element.delete(1.0, Tkinter.END)
 			try:
 				self.compiled_script = pancake.compiler.compile(self.get_script_text())
 				self.generated_script = pancake.compiler.generate(self.compiled_script)
@@ -290,11 +289,11 @@ class Main(object):
 			except Exception as e:
 				if not str(e).startswith("ERROR:"):
 					traceback.print_exc()
-					self.display_element.insert(Tkinter.END, "Some error occurred. Please see the python console.")
+					self.output_element.insert(Tkinter.END, "Some error occurred. Please see the python console.")
 				else:
-					self.display_element.insert(Tkinter.END, str(e.message))
+					self.output_element.insert(Tkinter.END, str(e.message))
 
-			self.display_element.config(state=Tkinter.DISABLED)
+			self.output_element.config(state=Tkinter.DISABLED)
 
 	def analyze(self):
 		i = self.interpreter.current_line_index
@@ -362,12 +361,12 @@ class Main(object):
 
 		# next we print
 		if len(self.interpreter.print_buffer) > 0:
-			self.display_element.config(state=Tkinter.NORMAL)
+			self.output_element.config(state=Tkinter.NORMAL)
 			for i in xrange(len(self.interpreter.print_buffer)):
 				line = self.interpreter.print_buffer[i]
-				self.display_element.insert(Tkinter.INSERT, line + "\n")
-			self.display_element.see(Tkinter.END)
-			self.display_element.config(state=Tkinter.DISABLED)
+				self.output_element.insert(Tkinter.INSERT, line + "\n")
+			self.output_element.see(Tkinter.END)
+			self.output_element.config(state=Tkinter.DISABLED)
 
 	def set_text(self, element, text):
 		element.config(state=Tkinter.NORMAL)
@@ -384,9 +383,9 @@ class Main(object):
 		if self.interpreter is None:
 			self.interpreter = pc_code.interpreter.Interpreter(self.generated_script)
 			self.set_running(True)
-			self.display_element.config(state=Tkinter.NORMAL)
-			self.display_element.delete(1.0, Tkinter.END)
-			self.display_element.config(state=Tkinter.DISABLED)
+			self.output_element.config(state=Tkinter.NORMAL)
+			self.output_element.delete(1.0, Tkinter.END)
+			self.output_element.config(state=Tkinter.DISABLED)
 
 		iterations = 2.0 ** (self.speed - 10)
 		delay = max(int(1.0 / iterations),1)
@@ -407,10 +406,10 @@ class Main(object):
 				else:
 					self.stop()
 			except Exception as e:
-				self.display_element.config(state=Tkinter.NORMAL)
+				self.output_element.config(state=Tkinter.NORMAL)
 				traceback.print_exc()
-				self.display_element.insert(Tkinter.END, str(e.message))
-				self.display_element.config(state=Tkinter.DISABLED)
+				self.output_element.insert(Tkinter.END, str(e.message))
+				self.output_element.config(state=Tkinter.DISABLED)
 
 				self.analyze()
 				self.stop()
@@ -418,7 +417,7 @@ class Main(object):
 		if self.interpreter is not None and self.interpreter.running:
 			if bool(self.continue_var.get()):
 				self.run_button.config(state=Tkinter.DISABLED)
-				self.top.after(delay, self._continue)
+				self.root.after(delay, self._continue)
 		else:
 			self.stop()
 
