@@ -16,6 +16,7 @@ from pc_code.constants import *
 class Main(object):
 	def __init__(self):
 		self.root = Tkinter.Tk()
+		self.root.wm_title("Pancake Script Editor")
 
 		self.setup_main_gui()
 
@@ -359,6 +360,7 @@ class Main(object):
 		# next we set the memory
 		self.memory_label_text.set(str(self.interpreter.memory)+"/"+str(MEMORY_SIZE)+" bytes")
 
+	def analyze_output(self):
 		# next we print
 		if len(self.interpreter.print_buffer) > 0:
 			self.output_element.config(state=Tkinter.NORMAL)
@@ -397,12 +399,15 @@ class Main(object):
 		while self.interpreter is not None and self.interpreter.running and iterations > 0:
 			try:
 				self.interpreter.go_to_next_line()
+				self.analyze_output()
 				self.analyze()
 				if self.interpreter.running:
 					self.interpreter.process_current_line()
-					self.analyze()
+					self.analyze_output()
 
 					iterations -= 1
+					if iterations <= 0:
+						self.analyze()
 				else:
 					self.stop()
 			except Exception as e:
@@ -412,6 +417,7 @@ class Main(object):
 				self.output_element.config(state=Tkinter.DISABLED)
 
 				self.analyze()
+				self.analyze_output()
 				self.stop()
 
 		if self.interpreter is not None and self.interpreter.running:
