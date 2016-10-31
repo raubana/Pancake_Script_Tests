@@ -50,7 +50,7 @@ class Shunter(object):
 				stack.append(token)
 			elif t == TYPE_BLOCK_START:
 				#we need to get the index of the end of this block
-				end_index = find_endblock_token_index(L,i+1)
+				end_index = find_endblock_token_index(L,i)
 				result = Shunter._process(L[i+1:end_index])
 				output.append(token)
 				output += result

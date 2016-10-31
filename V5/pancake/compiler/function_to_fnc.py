@@ -37,9 +37,8 @@ class Function2Fnc(object):
 			v = token.value
 
 			if t == TYPE_FUNCTION:
-				end_location = i - 1
-				start_location = find_startblock_token_index(tokenlist.tokens, end_location-1)
-				arg_count = _count_args(tokenlist.tokens, start_location, end_location)
+				start_location = find_startblock_token_index(tokenlist.tokens, i-1)
+				arg_count = _count_args(tokenlist.tokens, start_location, i)
 				#print i, start_location, end_location, arg_count
 				tokenlist.tokens.insert(i, Token(TYPE_NUMBER, str(arg_count), None, None))
 

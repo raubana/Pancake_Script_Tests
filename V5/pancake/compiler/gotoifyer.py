@@ -40,19 +40,20 @@ class Gotoifyer(object):
 				if v == "if":
 					# first we must determine that there is in fact a body following this function.
 					if i+1 < len(tokenlist.tokens) and tokenlist.tokens[i+1].type == TYPE_BLOCK_START and \
-						tokenlist.tokens[i + 1].value == BLOCK_START_CHAR:
+						tokenlist.tokens[i+1].value == BLOCK_START_CHAR:
 						pass
 					else:
 						error_format(token,"\"if\" should be followed by a block.")
 
-					# only if the body following this if-function has an "else" will this goto be added.
-					index = find_endblock_token_index(tokenlist.tokens, i + 2)
+					# only if after the body following this if-function has an "else" will this goto be added.
+					index = find_endblock_token_index(tokenlist.tokens, i+1)
 					if index + 1 < len(tokenlist.tokens):
 						token2 = tokenlist.tokens[index + 1]
 						t2 = token2.type
 						v2 = token2.value
 						if t2 == TYPE_TERM and v2 == "else":
-							end_of_chain = find_endblock_token_index(tokenlist.tokens,i)
+							# we're looking for where this "if" layer ends, so we aim for just below it.
+							end_of_chain = find_endblock_token_index(tokenlist.tokens,i,1)
 							if end_of_chain is None:
 								end_of_chain = len(tokenlist.tokens)
 							tokenlist.tokens.insert(index, Token(TYPE_GOTO,end_of_chain,None,None,0))
@@ -68,8 +69,8 @@ class Gotoifyer(object):
 
 					# Next we place a goto at the end of that body to point back at this while-function's args.
 					index = find_endblock_token_index(tokenlist.tokens, i+1)
-					goto = find_startblock_token_index(tokenlist.tokens, i-3)
-					tokenlist.tokens.insert(index-1, Token(TYPE_GOTO, goto, None, None,0))
+					goto = find_startblock_token_index(tokenlist.tokens, i-1)
+					tokenlist.tokens.insert(index, Token(TYPE_GOTO, goto, None, None, 0))
 					increment_gotos_pointing_after_here(tokenlist, index)
 			i += 1
 
@@ -86,13 +87,15 @@ class Gotoifyer(object):
 					decrement_gotos_pointing_after_here(tokenlist, i)
 					i -= 1
 					if i + 1 < len(tokenlist.tokens) and tokenlist.tokens[i+1].type == TYPE_BLOCK_START and tokenlist.tokens[i+1].value == BLOCK_START_CHAR:
+						end_index = find_endblock_token_index(tokenlist.tokens, i + 1)
 						tokenlist.tokens.pop(i+1)
 						decrement_gotos_pointing_after_here(tokenlist, i+1)
 						i -= 1
-						end_index = find_endblock_token_index(tokenlist.tokens, i + 2)
+						end_index -= 1
 						tokenlist.tokens.pop(end_index)
-						decrement_gotos_pointing_after_here(tokenlist, end_index)
 						i -= 1
+						end_index -= 1
+						decrement_gotos_pointing_after_here(tokenlist, end_index)
 			i += 1
 
 		# lastly we go through and remove all of the pseudo-functions.
