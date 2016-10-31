@@ -153,7 +153,7 @@ class Main(object):
 		self.output_element = self.create_scrollable_text_element("Output", self.root, 0, 4, 3, 1)
 
 	def on_script_change(self, *args):
-		if not self.running:
+		if not self.running or self.instant_var.get():
 			new_script = self.get_script_text()
 			if new_script != self.script:
 				self.last_script_change = time.time()
@@ -164,7 +164,7 @@ class Main(object):
 				if self.instant_var.get():
 					self.stop()
 					self.compile()
-					if not self.needs_to_compile:
+					if not self.needs_to_compile and self.continue_var.get():
 						self.set_running(True)
 						self.do_next()
 
