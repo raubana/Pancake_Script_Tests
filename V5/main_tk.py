@@ -392,6 +392,9 @@ class Main(object):
 		delay = max(int(1.0 / iterations),1)
 		iterations = max(int(iterations),1)
 
+		if not bool(self.continue_var.get()):
+			iterations = 1
+
 		while self.interpreter is not None and self.interpreter.running and iterations > 0:
 			try:
 				self.interpreter.go_to_next_line()
