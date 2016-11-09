@@ -1,0 +1,40 @@
+from PC_Exception import PC_Exception
+from PC_String import PC_String
+from PC_Number import PC_Number
+from ..interpreter import Interpreter
+
+
+def STRING_upper(interpreter, args):
+	if len(args) != 1: return PC_Exception("NUM_ARGS")
+	return [PC_String(args[0].value.upper())]
+Interpreter.functions["STRING.upper"] = STRING_upper
+
+def STRING_lower(interpreter, args):
+	if len(args) != 1: return PC_Exception("NUM_ARGS")
+	return [PC_String(args[0].value.lower())]
+Interpreter.functions["STRING.lower"] = STRING_lower
+
+def STRING_sub(interpreter, args):
+	if len(args) != 3: return PC_Exception("NUM_ARGS")
+	return [PC_String(args[0].value[ int(args[1].value) : int(args[2].value) ])]
+Interpreter.functions["STRING.sub"] = STRING_sub
+
+def STRING_toUpper(interpreter, args):
+	if len(args) != 1: return PC_Exception("NUM_ARGS")
+	args[0].value = args[0].value.upper()
+Interpreter.functions["STRING.toUpper"] = STRING_toUpper
+
+def STRING_toLower(interpreter, args):
+	if len(args) != 1: return PC_Exception("NUM_ARGS")
+	args[0].value = args[0].value.lower()
+Interpreter.functions["STRING.toLower"] = STRING_toLower
+
+def STRING_toSub(interpreter, args):
+	if len(args) != 3: return PC_Exception("NUM_ARGS")
+	args[0].value = args[0].value[ int(args[1].value) : int(args[2].value) ]
+	args[0].calculate_memory_size()
+Interpreter.functions["STRING.toSub"] = STRING_toSub
+
+def STRING_length(interpreter, args):
+	return PC_Number(len(args[0].value))
+Interpreter.functions["STRING.length"] = STRING_length
