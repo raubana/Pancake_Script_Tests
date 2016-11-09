@@ -311,6 +311,7 @@ class Main(object):
 			self.output_element.config(state=Tkinter.NORMAL)
 			self.output_element.delete(1.0, Tkinter.END)
 			try:
+				self.script_element.tag_delete("error")
 				self.compiled_script = pancake.compiler.compile(self.get_script_text())
 				self.generated_script = pancake.compiler.generate(self.compiled_script)
 				self.setup_token_elements()
